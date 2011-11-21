@@ -31,7 +31,7 @@ Cauby.start = function (container, defHash)
             if (hash)
                 $(container).load(path + hash);
             else
-                $(container).html('<br/>');
+                $(container).html('');
         }
     }
 
