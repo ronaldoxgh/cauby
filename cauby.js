@@ -1,7 +1,7 @@
 ﻿/// <reference path="jquery-1.5.1.min.js" />
 
 var Cauby = {};
-Cauby.start = function (containerSelector, defaultHash)
+Cauby.start = function (container, defHash)
 {
     var lastHash = null;
 
@@ -10,18 +10,33 @@ Cauby.start = function (containerSelector, defaultHash)
     function checkHashChanged()
     {
         // se mudou o hash, refresco o conteudo
-        var hash = window.location.hash.replace('#', '');
+        var loc = splitLocation();
+        var hash = loc.hash.replace('#', '');
         if (!hash || hash == '/')
-            hash = defaultHash ? defaultHash.replace('#', '') : "";
+            hash = defHash ? defHash.replace('#', '') : "";
         if (hash != lastHash)
         {
             lastHash = hash;
             if (hash)
-                $(containerSelector).load((window.location.pathname + '/' + hash).replace('///', '/').replace('//', '/'));
+            {
+                var url = (loc.document + '#' + hash).replace('/#/', '/').replace('/#', '/').replace('#/', '/').replace('#', '/');
+                $(container).load(url);
+            }
             else
-                $(containerSelector).html("<br/>");
+                $(container).html("<br/>");
         }
     }
+
+    function splitLocation()
+    {
+        var url = window.location.toString();
+        var i = url.indexOf('#');
+        if (i != -1)
+            return { document: url.substr(0, i), hash: url.substr(i) };
+        else
+            return { document: url, hash: "" };
+    }
+
     if ("onhashchange" in window)
         $(window).bind("hashchange", checkHashChanged);
     else
