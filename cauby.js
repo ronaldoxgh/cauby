@@ -10,43 +10,41 @@ Cauby.start = function (container, defHash)
     function checkHashChanged()
     {
         // se mudou o hash, refresco o conteudo
-        var loc = splitLocation();
-        var hash = loc.hash.replace('#', '');
+        var path = window.location.toString(), hash;
+        var i = path.indexOf('#');
+        if (i != -1)
+        {
+            hash = path.substr(i + 1);
+            path = path.substr(0, i);
+            if (path && path[path.length - 1] == '/')
+                path = path.substr(0, path.length - 1);
+        }
+        else
+            hash = '';
         if (!hash || hash == '/')
-            hash = defHash ? defHash.replace('#', '') : "";
+            hash = defHash ? defHash.replace('#', '') : '';
+        if (hash && hash[0] != '/')
+            hash = '/' + hash;
         if (hash != lastHash)
         {
             lastHash = hash;
             if (hash)
-            {
-                var url = (loc.document + '#' + hash).replace('/#/', '/').replace('/#', '/').replace('#/', '/').replace('#', '/');
-                $(container).load(url);
-            }
+                $(container).load(path + hash);
             else
-                $(container).html("<br/>");
+                $(container).html('<br/>');
         }
     }
 
-    function splitLocation()
-    {
-        var url = window.location.toString();
-        var i = url.indexOf('#');
-        if (i != -1)
-            return { document: url.substr(0, i), hash: url.substr(i) };
-        else
-            return { document: url, hash: "" };
-    }
-
-    if ("onhashchange" in window)
-        $(window).bind("hashchange", checkHashChanged);
+    if ('onhashchange' in window)
+        $(window).bind('hashchange', checkHashChanged);
     else
         window.setInterval(checkHashChanged, 200);
 
     // estou iniciando o Cauby, devo ir para a pagina default
-    // se tem "#" na url, eh pq o cara jah esta numa pagina especifica, nao vou levar ele de volta pro root
+    // se tem '#' na url, eh pq o cara jah esta numa pagina especifica, nao vou levar ele de volta pro root
     if (!window.location.hash)
-        window.location = "#/";
+        window.location = '#/';
 
-    // preciso fazer ao menos uma verificacao inicial (nao confio 100% no "hashchange")
+    // preciso fazer ao menos uma verificacao inicial (nao confio 100% no 'hashchange')
     $(document).ready(checkHashChanged);
 };
