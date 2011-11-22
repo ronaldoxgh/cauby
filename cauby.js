@@ -47,5 +47,5 @@ Cauby.start = function (container, defHash)
         window.location = '#/';
 
     // preciso fazer ao menos uma verificacao inicial (nao confio 100% no 'hashchange')
-    $(document).ready(checkHashChanged);
+    $(checkHashChanged);
 };
