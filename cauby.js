@@ -3,38 +3,39 @@
 var Cauby = {};
 Cauby.start = function (container, defHash)
 {
-    var lastHash = null;
+    var lastUrl = null;
 
     // essa funcao verifica se houve alteracao na localizacao
-    // vejo se o browser dah suporte a hashchange, senao, faco aa moda antiga (pooling 200ms)
+    // se mudou o hash, refresco o conteudo
     function checkHashChanged()
     {
-        // se mudou o hash, refresco o conteudo
-        var path = window.location.toString(), hash;
-        var i = path.indexOf('#');
-        if (i != -1)
+        // da url, eu separo (path ? query # hash)
+        // alternativamente, pode vir assim (path # hash ? query)
+        // hash vazio ou raiz eu redireciono para o default (sem #)
+        var path = window.location.toString();
+        var h = path.split('#');
+        var hash = h[1], q = h[0].split('?');
+        var path = q[0], query = q[1];
+        if (hash && !query && (q = hash.split('?')).length > 1)
         {
-            hash = path.substr(i + 1);
-            path = path.substr(0, i);
-            if (path && path[path.length - 1] == '/')
-                path = path.substr(0, path.length - 1);
+            hash = q[0];
+            query = q[1];
         }
-        else
-            hash = '';
         if (!hash || hash == '/')
             hash = defHash ? defHash.replace('#', '') : '';
-        if (hash && hash[0] != '/')
-            hash = '/' + hash;
-        if (hash != lastHash)
+        var url = (path + '#' + hash).replace('/#/', '/').replace('/#', '/').replace('#/', '/').replace('#', '/') + (query ? '?' + query : '');
+        if (url != lastUrl)
         {
-            lastHash = hash;
+            lastUrl = url;
+            // s houver um hash, carrego o partial desse hash dentro do container
             if (hash)
-                $(container).load(path + hash);
+                $(container).load(url);
             else
                 $(container).html('');
         }
     }
 
+    // vejo se o browser dah suporte a hashchange, senao, faco aa moda antiga (pooling 200ms)
     if ('onhashchange' in window)
         $(window).bind('hashchange', checkHashChanged);
     else
